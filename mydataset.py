@@ -4,11 +4,24 @@ from prettytable import PrettyTable
 
 class MyDataSet:
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self):
+        pass
     
-    def read_csv(self):
-        with open(self.path, 'r') as file:
+    def __getitem__(self, key_tup):
+        if len(key_tup) == 2:
+            row = key_tup[0]
+            col = key_tup[1]
+            if type(row)==int :
+                return self.df[col][row]
+            elif type(row)==slice :
+                print('Sorry we are not ready for slices yet...')
+            else :
+                print('For conditionnal arguments please use the get_cond function.')
+        else:
+            return self.df[key_tup]
+
+    def read_csv(self, path):
+        with open(path, 'r') as file:
             line_count = 0
             for line in file:
                 if line_count == 0:
@@ -30,7 +43,7 @@ class MyDataSet:
                         dataframe[colNames[i]][index] = words[i]
                     line_count += 1
         self.df = dataframe
-        return dataframe
+        return self
     
     @staticmethod
     def words_convert(item):
@@ -44,7 +57,11 @@ class MyDataSet:
                     return float(item)
                 except ValueError:
                     return item
-    
+
+    def get_cond(self, cond_col, cond_val, get_col, cond='equal'):
+        idx = [key for key, value in self.df[cond_col].items() if value == cond_val]
+        return [self.df[get_col][x] for x in idx if str(self.df[get_col][x]) != 'nan']
+
     def describe(self):
         keys_float = [keys for keys in self.df.keys() if type(list(self.df[keys].values())[0]) == float]
         t = PrettyTable(['',*keys_float[:8]])
@@ -149,6 +166,5 @@ class MyDataSet:
 
 
 if __name__ == '__main__':
-    dataset_train = MyDataSet('resources/dataset_train.csv')
-    dataset_train.read_csv()
+    dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
     dataset_train.describe()
