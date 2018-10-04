@@ -9,12 +9,15 @@ class MyDataSet:
         pass
     
     def __getitem__(self, key_tup):
-        if len(key_tup) == 2:
+        if type(key_tup) == tuple:
             row = key_tup[0]
             col = key_tup[1]
             return self.df[col][row]
         else:
-            return self.df[key_tup]
+            if type(key_tup) == list:
+                return {key:self.df[key] for key in key_tup}
+            else:
+                return {key_tup:self.df[key_tup]}
     
     def read_csv(self, path):
         with open(path, 'r') as file:
@@ -180,7 +183,7 @@ class MyDataSet:
                 if i == j :
                     axes[i,j].text(x=0.1, y=1/2, s=class_name_1, fontsize=15)
                 else :
-                    axes[i,j].scatter(x=self[class_name_1], y=self[class_name_2])
+                    axes[i,j].scatter(x=self.df[class_name_1], y=self.df[class_name_2])
                 axes[i,j].set_xticklabels([])
                 axes[i,j].set_yticklabels([])
                 j += 1
