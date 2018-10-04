@@ -12,14 +12,14 @@ class MyDataSet:
             row = key_tup[0]
             col = key_tup[1]
             if type(row)==int :
-                return self.df[col][row]
+                return list(self.df[col][row].values())
             elif type(row)==slice :
                 print('Sorry we are not ready for slices yet...')
             else :
                 print('For conditionnal arguments please use the get_cond function.')
         else:
-            return self.df[key_tup]
-
+            return list(self.df[key_tup].values())
+    
     def read_csv(self, path):
         with open(path, 'r') as file:
             line_count = 0
@@ -57,11 +57,14 @@ class MyDataSet:
                     return float(item)
                 except ValueError:
                     return item
-
-    def get_cond(self, cond_col, cond_val, get_col, cond='equal'):
+    
+    def get_cond(self, cond_col, cond_val, get_col, dropna = True):
         idx = [key for key, value in self.df[cond_col].items() if value == cond_val]
-        return [self.df[get_col][x] for x in idx if str(self.df[get_col][x]) != 'nan']
-
+        if dropna == True:
+            return [self.df[get_col][x] for x in idx if str(self.df[get_col][x]) != 'nan']
+        else:
+            return [self.df[get_col][x] for x in idx]
+    
     def describe(self):
         keys_float = [keys for keys in self.df.keys() if type(list(self.df[keys].values())[0]) == float]
         t = PrettyTable(['',*keys_float[:8]])
@@ -161,8 +164,73 @@ class MyDataSet:
             result = (func_list[int(quart_idx)] + func_list[int(quart_idx)-1])/2
             return result
         else:
-            result = func_list[int(np.floor(quart_idx))]
+            result = func_list[int(quart_idx)]
             return result
+    
+    def plot_hist(self):
+        class_list = [keys for keys in dataset_train.df.keys() if type(list(dataset_train.df[keys].values())[0]) == float]
+        num_cols = int(len(class_list)/2) + 1 
+        fig, axes = plt.subplots(2, num_cols, sharey=True, figsize=(15,6))
+        i, j = [0, 0]
+        for class_name in class_list :
+            for house in set(self.df['Hogwarts House'].values()):
+                axes[i,j].hist(self.get_cond('Hogwarts House', house, class_name), alpha=0.7)
+                axes[i,j].set_title(class_name, fontsize = 12)
+            if j < num_cols - 1 :
+                j += 1
+            else :
+                i += 1
+                j = 0
+
+        plt.show()
+    
+    def plot_scatter(self):
+        class_list = [keys for keys in dataset_train.df.keys() if type(list(dataset_train.df[keys].values())[0]) == float]
+        num_cols = len(class_list)
+        fig, axes = plt.subplots(num_cols, num_cols, figsize=(30,30))
+        i = 0
+        for class_name_1 in class_list :
+            j = 0
+            for class_name_2 in class_list :
+                if i == j :
+                    axes[i,j].text(x=0.1, y=1/2, s=class_name_1, fontsize=15)
+                else :
+                    axes[i,j].scatter(x=self[class_name_1], y=self[class_name_2])
+                axes[i,j].set_xticklabels([])
+                axes[i,j].set_yticklabels([])
+                j += 1
+            i += 1
+        plt.show()
+    
+    def plot_pair(self):
+        class_list = [keys for keys in dataset_train.df.keys() if type(list(dataset_train.df[keys].values())[0]) == float]
+        num_cols = len(class_list)
+        fig, axes = plt.subplots(num_cols, num_cols, figsize=(60,60))
+        i = 0
+        for class_name_1 in class_list :
+            j = 0
+            for class_name_2 in class_list :
+
+                if j==0 :
+                    axes[i,j].set_ylabel(class_name_1, fontsize=30)
+
+                if i == j :
+                    for house in set(self['Hogwarts House']) :
+                        axes[i,j].hist(self.get_cond('Hogwarts House', house, class_name_1), alpha=0.7)
+                else :
+                    for house in set(self['Hogwarts House']) :
+                            sc_x = self.get_cond('Hogwarts House', house, class_name_1, dropna=False)
+                            sc_y = self.get_cond('Hogwarts House', house, class_name_2, dropna=False)
+                            axes[i,j].scatter(x=sc_x, y=sc_y)
+                axes[i,j].set_xticklabels([])
+                axes[i,j].set_yticklabels([])
+
+                if i==num_cols-1 :
+                    axes[i,j].set_xlabel(class_name_2, fontsize=30)
+
+                j += 1
+            i += 1
+        plt.show()
 
 
 if __name__ == '__main__':
