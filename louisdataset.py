@@ -171,8 +171,18 @@ class MyDataSet:
         else:
             result = func_list[int(np.floor(quart_idx))]
             return result
+        
+    ### UPDATES FROM LOUIS 
+    
+    def dict_list(self): # on self.df
+        newDict = dict.fromkeys(self.df.keys())
+        for i in self.df.keys():
+            newDict[i] = list(self.df[i].values())
+        self.df_dict = newDict
+        #return newDict # necessary ? 
 
 
 if __name__ == '__main__':
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
-    dataset_train.describe()
+    # dataset_train.describe()
+    dataset_train.dict_list()
