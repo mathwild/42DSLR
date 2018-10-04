@@ -1,5 +1,6 @@
 import numpy as np
 from prettytable import PrettyTable
+import matplotlib.pyplot as plt
 
 
 class MyDataSet:
@@ -11,14 +12,9 @@ class MyDataSet:
         if len(key_tup) == 2:
             row = key_tup[0]
             col = key_tup[1]
-            if type(row)==int :
-                return list(self.df[col][row].values())
-            elif type(row)==slice :
-                print('Sorry we are not ready for slices yet...')
-            else :
-                print('For conditionnal arguments please use the get_cond function.')
+            return self.df[col][row]
         else:
-            return list(self.df[key_tup].values())
+            return self.df[key_tup]
     
     def read_csv(self, path):
         with open(path, 'r') as file:
@@ -33,14 +29,14 @@ class MyDataSet:
                     words = [MyDataSet.words_convert(x) for x in words]
                     index = words[0]
                     for i in range(len(words)):
-                        dataframe[colNames[i]] = {index: words[i]}
+                        dataframe[colNames[i]] = [words[i]]
                     line_count += 1
                 else:
                     words = line.strip().split(',')
                     words = [MyDataSet.words_convert(x) for x in words]
                     index = words[0]
                     for i in range(len(words)):
-                        dataframe[colNames[i]][index] = words[i]
+                        dataframe[colNames[i]] += [words[i]]
                     line_count += 1
         self.df = dataframe
         return self
@@ -59,41 +55,30 @@ class MyDataSet:
                     return item
     
     def get_cond(self, cond_col, cond_val, get_col, dropna = True):
-        idx = [key for key, value in self.df[cond_col].items() if value == cond_val]
+        idx = [i for i, x in enumerate(self.df[cond_col]) if x == cond_val]
         if dropna == True:
             return [self.df[get_col][x] for x in idx if str(self.df[get_col][x]) != 'nan']
         else:
             return [self.df[get_col][x] for x in idx]
     
     def describe(self):
-        keys_float = [keys for keys in self.df.keys() if type(list(self.df[keys].values())[0]) == float]
-        t = PrettyTable(['',*keys_float[:8]])
-        t.add_row(['count', *[self.column_count(keys) for keys in keys_float[:8]]])
-        t.add_row(['mean', *[self.column_mean(keys) for keys in keys_float[:8]]])
-        t.add_row(['std', *[self.standard_deviation(keys) for keys in keys_float[:8]]])
-        t.add_row(['min', *[self.column_minimum(keys) for keys in keys_float[:8]]])
-        t.add_row(['25%', *[self.quartiles(keys, 0.25) for keys in keys_float[:8]]])
-        t.add_row(['50%', *[self.quartiles(keys, 0.5) for keys in keys_float[:8]]])
-        t.add_row(['75%', *[self.quartiles(keys, 0.75) for keys in keys_float[:8]]])
-        t.add_row(['max', *[self.column_maximum(keys) for keys in keys_float[:8]]])
-
-        t2 = PrettyTable(['',*keys_float[8:]])
-        t2.add_row(['count', *[self.column_count(keys) for keys in keys_float[8:]]])
-        t2.add_row(['mean', *[self.column_mean(keys) for keys in keys_float[8:]]])
-        t2.add_row(['std', *[self.standard_deviation(keys) for keys in keys_float[8:]]])
-        t2.add_row(['min', *[self.column_minimum(keys) for keys in keys_float[8:]]])
-        t2.add_row(['25%', *[self.quartiles(keys, 0.25) for keys in keys_float[8:]]])
-        t2.add_row(['50%', *[self.quartiles(keys, 0.5) for keys in keys_float[8:]]])
-        t2.add_row(['75%', *[self.quartiles(keys, 0.75) for keys in keys_float[8:]]])
-        t2.add_row(['max', *[self.column_maximum(keys) for keys in keys_float[8:]]])
+        keys_float = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
+        t = PrettyTable(['',*keys_float])
+        t.add_row(['count', *[self.column_count(key) for key in keys_float]])
+        t.add_row(['mean', *[self.column_mean(key) for key in keys_float]])
+        t.add_row(['std', *[self.standard_deviation(key) for key in keys_float]])
+        t.add_row(['min', *[self.column_minimum(key) for key in keys_float]])
+        t.add_row(['25%', *[self.quartiles(key, 0.25) for key in keys_float]])
+        t.add_row(['50%', *[self.quartiles(key, 0.5) for key in keys_float]])
+        t.add_row(['75%', *[self.quartiles(key, 0.75) for key in keys_float]])
+        t.add_row(['max', *[self.column_maximum(key) for key in keys_float]])
 
         print(t)
-        print(t2)
 
     def column_count(self, feature):
         column = self.df[feature]
         count = 0
-        for key,value in column.items():
+        for value in column:
             if str(value) != 'nan':
                 count = count + 1
             else:
@@ -104,7 +89,7 @@ class MyDataSet:
         column = self.df[feature]
         count = 0
         total = 0
-        for key,value in column.items():
+        for value in column:
             if str(value) != 'nan':
                 count = count + 1
                 total = total + value
@@ -116,7 +101,7 @@ class MyDataSet:
         column = self.df[feature]
         count = 0
         total = 0
-        for key,value in column.items():
+        for value in column:
             if str(value) != 'nan':
                 count = count + 1
                 total = total + value
@@ -125,7 +110,7 @@ class MyDataSet:
         mean = total/count
 
         variance = 0
-        for key, value in column.items():
+        for value in column:
             if str(value) != 'nan':
                 res = value - mean
                 square = res*res
@@ -137,7 +122,7 @@ class MyDataSet:
     def column_minimum(self, feature):
         column = self.df[feature]
         mini = np.inf
-        for key,value in column.items():
+        for value in column:
             if mini > value:
                 mini = value
             else:
@@ -147,7 +132,7 @@ class MyDataSet:
     def column_maximum(self, feature):
         column = self.df[feature]
         maxi = - np.inf
-        for key,value in column.items():
+        for value in column:
             if maxi < value:
                 maxi = value
             else:
@@ -155,7 +140,7 @@ class MyDataSet:
         return maxi
 
     def quartiles(self, feature, quart):
-        mylist = list(self.df[feature].values())
+        mylist = self.df[feature]
         func_list = mylist.copy()
         func_list = [x for x in func_list if str(x) != 'nan']
         func_list.sort()
@@ -168,12 +153,12 @@ class MyDataSet:
             return result
     
     def plot_hist(self):
-        class_list = [keys for keys in dataset_train.df.keys() if type(list(dataset_train.df[keys].values())[0]) == float]
+        class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = int(len(class_list)/2) + 1 
         fig, axes = plt.subplots(2, num_cols, sharey=True, figsize=(15,6))
         i, j = [0, 0]
         for class_name in class_list :
-            for house in set(self.df['Hogwarts House'].values()):
+            for house in set(self.df['Hogwarts House']):
                 axes[i,j].hist(self.get_cond('Hogwarts House', house, class_name), alpha=0.7)
                 axes[i,j].set_title(class_name, fontsize = 12)
             if j < num_cols - 1 :
@@ -185,7 +170,7 @@ class MyDataSet:
         plt.show()
     
     def plot_scatter(self):
-        class_list = [keys for keys in dataset_train.df.keys() if type(list(dataset_train.df[keys].values())[0]) == float]
+        class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = len(class_list)
         fig, axes = plt.subplots(num_cols, num_cols, figsize=(30,30))
         i = 0
@@ -203,7 +188,7 @@ class MyDataSet:
         plt.show()
     
     def plot_pair(self):
-        class_list = [keys for keys in dataset_train.df.keys() if type(list(dataset_train.df[keys].values())[0]) == float]
+        class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = len(class_list)
         fig, axes = plt.subplots(num_cols, num_cols, figsize=(60,60))
         i = 0
