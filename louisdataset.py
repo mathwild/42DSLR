@@ -179,10 +179,10 @@ class MyDataSet:
         for i in self.df.keys():
             newDict[i] = list(self.df[i].values())
         self.df_dict = newDict
-        #return newDict # necessary ? 
+        return newDict # necessary ? 
 
 
 if __name__ == '__main__':
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
-    # dataset_train.describe()
+    #dataset_train.describe()
     dataset_train.dict_list()
