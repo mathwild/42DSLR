@@ -1,4 +1,4 @@
-from mydataset import mydataset
+from mydataset import MyDataSet
 import numpy as np
 
 def get_dummies(dataset, col_to_dummy):
@@ -26,7 +26,7 @@ def full_one_hot_encoder(dataset) :
     return Full_Dict
 
 def to_matrix(full_dict, select=None):
-    if select=None:
+    if select==None:
         return np.column_stack(list(full_dict.values()))
     else:
         return np.array(full_dict[select].copy())
@@ -42,3 +42,7 @@ if __name__ == '__main__':
     DictY = dataset_train['Hogwarts House']
     DictY_dum = get_dummies(DictY, 'Hogwarts House')
     Y = to_matrix(DictY_dum, 'Ravenclaw')
+
+    Y_name = list(DictY.keys())[0]
+
+    print(set(DictY[Y_name]))

@@ -203,10 +203,10 @@ class MyDataSet:
                     axes[i,j].set_ylabel(class_name_1, fontsize=30)
 
                 if i == j :
-                    for house in set(self['Hogwarts House']) :
+                    for house in set(self.df['Hogwarts House']) :
                         axes[i,j].hist(self.get_cond('Hogwarts House', house, class_name_1), alpha=0.7)
                 else :
-                    for house in set(self['Hogwarts House']) :
+                    for house in set(self.df['Hogwarts House']) :
                             sc_x = self.get_cond('Hogwarts House', house, class_name_1, dropna=False)
                             sc_y = self.get_cond('Hogwarts House', house, class_name_2, dropna=False)
                             axes[i,j].scatter(x=sc_x, y=sc_y)
