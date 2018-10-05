@@ -43,6 +43,17 @@ class LogRegModel :
         # sum without NAs
         return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
     
+    def predict(self, x_test):
+        max_proba = 0
+        for key, value in self.coef.items():
+            proba = np.exp(np.matmul(x_test,value))/(1+(np.exp(np.matmul(x_test,value))))
+            if proba > max_proba:
+                max_proba = proba
+                prediction = key
+            else:
+                continue 
+        return prediction
+    
 name_Y = 'Hogwarts House'
 name_subY = 'Gryffindor'
 
@@ -61,5 +72,6 @@ if __name__ == '__main__':
     
     model = LogRegModel()
     model.fit(Y, X_train = X)
-    print(model.coef)
+    print(model.predict(X[8, :]))
+    #print(model.coef)
     
