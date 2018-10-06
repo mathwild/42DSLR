@@ -43,23 +43,26 @@ class LogRegModel :
         # sum without NAs
         return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
     
-    def predict(self, x_test):
-        max_proba = 0
-        for key, value in self.coef.items():
-            proba = np.exp(np.matmul(x_test,value))/(1+(np.exp(np.matmul(x_test,value))))
-            if proba > max_proba:
-                max_proba = proba
-                prediction = key
-            else:
-                continue 
-        return prediction
+#    def predict(self, x_test):
+#        max_proba = 0
+#        for key, value in self.coef.items():
+#            proba = np.exp(np.matmul(x_test,value))/(1+(np.exp(np.matmul(x_test,value))))
+#            if proba > max_proba:
+#                max_proba = proba
+#                prediction = key
+#            else:
+#                continue 
+#        return prediction
+        
+
     
 name_Y = 'Hogwarts House'
-name_subY = 'Gryffindor'
+name_subY1 = 'Gryffindor'
+name_subY2 = 'Ravenclaw'
 
 if __name__ == '__main__':
     
-    ###
+    ### TRAIN ###
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
     # getting X
     DictX = dataset_train[['Best Hand','Arithmancy', 'Astronomy']]
@@ -69,9 +72,27 @@ if __name__ == '__main__':
     Y = dataset_train[name_Y]
     ###
     
+    ### TEST ### 
+    dataset_test = MyDataSet().read_csv('resources/dataset_test.csv')
+    # getting X
+    DictX_test = dataset_test[['Best Hand','Arithmancy', 'Astronomy']]
+    DictX_encod_test = full_one_hot_encoder(DictX_test)
+    X_test = to_matrix(DictX_encod_test)
+    # adding intercept
+    m, p = X_test.shape
+    intercept = np.ones(m)
+    X_test = np.column_stack((intercept,X_test))
+    ###
     
+    ### FIT ### 
     model = LogRegModel()
     model.fit(Y, X_train = X)
-    print(model.predict(X[8, :]))
-    #print(model.coef)
+    ###
     
+    indiv = X_test[:10]
+    coef1 = model.coef[name_subY1]
+    proba1 = np.exp(np.matmul(indiv,coef1))/(1+(np.exp(np.matmul(indiv,coef1))))
+    coef2 = model.coef[name_subY2]
+    proba2 = np.exp(np.matmul(indiv,coef2))/(1+(np.exp(np.matmul(indiv,coef2))))
+    pairwise_max = np.maximum(proba1, proba2)
+    print(pairwise_max)
