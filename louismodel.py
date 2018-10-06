@@ -95,4 +95,5 @@ if __name__ == '__main__':
     coef2 = model.coef[name_subY2]
     proba2 = np.exp(np.matmul(indiv,coef2))/(1+(np.exp(np.matmul(indiv,coef2))))
     pairwise_max = np.maximum(proba1, proba2)
+    
     print(pairwise_max)
