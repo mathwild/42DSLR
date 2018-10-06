@@ -9,8 +9,8 @@ Created on Thu Oct  4 13:43:19 2018
 import numpy as np
 from scipy import optimize 
 
-from louisdataset import MyDataSet
-from louis_get_matrix import get_DictX, get_dummies, get_Y, full_one_hot_encoder
+from mydataset import MyDataSet
+from preprocessing import get_dummies, full_one_hot_encoder, to_matrix
 
 
 class LogRegModel : 
@@ -22,10 +22,10 @@ class LogRegModel :
         self.coef = dict()
         Y_name = str(list(Y_full.keys())[0])
         SubDict = get_dummies(Y_full, Y_name)
-        print('success')
-        Categories = list(set(list(Y_full.values())[0]))
+        Categories = set(Y_full[Y_name])
         for i in Categories: 
-            Y_train = get_Y(SubDict, i)
+            # Y_train = get_Y(SubDict, i)
+            Y_train = SubDict[i]
             self.fit_binary(Y_train, X_train, i)
     
     def fit_binary(self, Y_train, X_train, name):
@@ -43,6 +43,17 @@ class LogRegModel :
         # sum without NAs
         return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
     
+    def predict(self, x_test):
+        max_proba = 0
+        for key, value in self.coef.items():
+            proba = np.exp(np.matmul(x_test,value))/(1+(np.exp(np.matmul(x_test,value))))
+            if proba > max_proba:
+                max_proba = proba
+                prediction = key
+            else:
+                continue 
+        return prediction
+    
 name_Y = 'Hogwarts House'
 name_subY = 'Gryffindor'
 
@@ -50,19 +61,17 @@ if __name__ == '__main__':
     
     ###
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
-    dataset_train_dict = dataset_train.dict_list()
-    
     # getting X
-    DictX = get_DictX(dataset_train_dict, name_Y)
-    X = full_one_hot_encoder(DictX)
+    DictX = dataset_train[['Best Hand','Arithmancy', 'Astronomy']]
+    DictX_encod = full_one_hot_encoder(DictX)
+    X = to_matrix(DictX_encod)
     # getting Y
-    Y_dict = {name_Y:dataset_train_dict[name_Y]}.copy()
-    #SubDict = get_dummies(dataset_train_dict, name_Y)
-    #Y = get_Y(SubDict, name_subY)
+    Y = dataset_train[name_Y]
     ###
     
     
     model = LogRegModel()
-    log_params = model.fit(Y_dict, X_train = X)
-    #print(log_params)
+    model.fit(Y, X_train = X)
+    print(model.predict(X[8, :]))
+    #print(model.coef)
     
