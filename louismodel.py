@@ -43,22 +43,28 @@ class LogRegModel :
         # sum without NAs
         return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
     
-#    def predict(self, x_test):
-#        max_proba = 0
-#        for key, value in self.coef.items():
-#            proba = np.exp(np.matmul(x_test,value))/(1+(np.exp(np.matmul(x_test,value))))
-#            if proba > max_proba:
-#                max_proba = proba
-#                prediction = key
-#            else:
-#                continue 
-#        return prediction
+    def predict(self, X):
+        m, p = X.shape
+        intercept = np.ones(m)
+        X = np.column_stack((intercept,X))
+        houses = set(model.coef.keys())
+        pairwise_max = np.zeros(m)
         
+        for house in houses: 
+            #print(house)
+            coef = model.coef[house]
+            proba = np.exp(np.matmul(indiv,coef))/(1+(np.exp(np.matmul(indiv,coef))))
+            pairwise_max = np.maximum(pairwise_max, proba)
+        #print(pairwise_max)
+        labels = pairwise_max
+        for house in houses: 
+            coef = model.coef[house]
+            boolean = pairwise_max == np.exp(np.matmul(indiv,coef))/(1+(np.exp(np.matmul(indiv,coef))))
+            labels = [labels[i] if labels[i] in houses else house if elements == True else labels[i] for i, elements in enumerate(boolean)]
+        self.prediction = labels
 
     
 name_Y = 'Hogwarts House'
-name_subY1 = 'Gryffindor'
-name_subY2 = 'Ravenclaw'
 
 if __name__ == '__main__':
     
@@ -90,10 +96,6 @@ if __name__ == '__main__':
     ###
     
     indiv = X_test[:10]
-    coef1 = model.coef[name_subY1]
-    proba1 = np.exp(np.matmul(indiv,coef1))/(1+(np.exp(np.matmul(indiv,coef1))))
-    coef2 = model.coef[name_subY2]
-    proba2 = np.exp(np.matmul(indiv,coef2))/(1+(np.exp(np.matmul(indiv,coef2))))
-    pairwise_max = np.maximum(proba1, proba2)
+    model.predict(indiv)
     
-    print(pairwise_max)
+    print(model.prediction)
