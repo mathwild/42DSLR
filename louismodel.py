@@ -63,6 +63,9 @@ class LogRegModel :
             labels = [labels[i] if labels[i] in houses else house if elements == True else labels[i] for i, elements in enumerate(boolean)]
         self.prediction = labels
 
+    def accuracy_score(self, Y_true):
+        #both Y_pred and and Y_true should be lists 
+        return len([i for i, j in zip(self.prediction, Y_true) if i == j])/len(Y_true)
     
 name_Y = 'Hogwarts House'
 
@@ -88,14 +91,16 @@ if __name__ == '__main__':
     m, p = X_test.shape
     intercept = np.ones(m)
     X_test = np.column_stack((intercept,X_test))
-    ###
+    #getting Y
+    Y_test = dataset_test[name_Y]
     
     ### FIT ### 
     model = LogRegModel()
     model.fit(Y, X_train = X)
     ###
-    
-    indiv = X_test[:10]
+    indiv = X_test[:]
     model.predict(indiv)
     
-    print(model.prediction)
+    #print(model.prediction)
+    print(model.accuracy_score(Y_test[name_Y]))
+    
