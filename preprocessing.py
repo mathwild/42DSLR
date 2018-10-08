@@ -115,6 +115,10 @@ def to_matrix(full_dict, select=None):
         return np.column_stack(list(full_dict.values()))
     else:
         return np.array(full_dict[select].copy())
+    
+def interaction(dataset, var1, var2):
+    #dataset is a dicitonary of lists
+    dataset[str(var1 + '*' + var2)] = [a*b for a,b in zip(dataset[var1],dataset[var2])]
 
 
 if __name__ == '__main__':
