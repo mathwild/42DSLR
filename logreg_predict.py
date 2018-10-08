@@ -13,9 +13,9 @@ from mydataset import MyDataSet
 from logregmodel import LogRegModel
 from preprocessing import full_one_hot_encoder, to_matrix
 import sys
+import csv 
 
 path = str(sys.argv[1])
-print(path)
 dataset_test = MyDataSet().read_csv(path)
 
 # getting X
@@ -46,5 +46,9 @@ Y = dataset_train['Hogwarts House']
 
 model = LogRegModel()
 model.fit(Y, X)
-model.predict(X)
-print(model.prediction)
+model.predict(X_test)
+with open('houses.csv', mode='w') as houses_file:
+        house_writer = csv.writer(houses_file, delimiter=',')
+        house_writer.writerow(('Index', 'Hogwarts House'))
+        for i, prediction in enumerate(model.prediction): 
+            house_writer.writerow((i,prediction))

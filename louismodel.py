@@ -7,11 +7,12 @@ Created on Thu Oct  4 13:43:19 2018
 """
 
 import numpy as np
+import csv
 from scipy import optimize 
 from scipy import special as scisp
 
 from mydataset import MyDataSet
-from preprocessing import get_dummies, full_one_hot_encoder, to_matrix, interaction
+from preprocessing import get_dummies, full_one_hot_encoder, to_matrix
 
 
 class LogRegModel : 
@@ -77,12 +78,7 @@ if __name__ == '__main__':
                            'Muggle Studies', 'Ancient Runes',
                            'History of Magic', 'Transfiguration', 'Potions',
                            'Care of Magical Creatures', 'Charms', 'Flying']]
-    
-    interaction(DictX, 'Herbology', 'Astronomy')
-    interaction(DictX, 'Herbology', 'Defense Against the Dark Arts')
-    interaction(DictX, 'Ancient Runes', 'Defense Against the Dark Arts')
-    interaction(DictX, 'Ancient Runes', 'Astronomy')
-    interaction(DictX, 'Ancient Runes', 'Herbology')
+
     
     DictX_encod = full_one_hot_encoder(DictX)
     X = to_matrix(DictX_encod)
@@ -115,5 +111,11 @@ if __name__ == '__main__':
     indiv = X_test[:]
     model.predict(indiv)
     
-    print(model.prediction[:10])
-    
+    print(model.prediction)
+    with open('houses.csv', mode='w') as houses_file:
+        house_writer = csv.writer(houses_file, delimiter=',')
+        house_writer.writerow(('Index', 'Hogwarts House'))
+        for i, prediction in enumerate(model.prediction): 
+            house_writer.writerow((i,prediction))
+
+
