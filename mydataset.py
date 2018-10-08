@@ -10,7 +10,6 @@
 """
 
 import numpy as np
-from prettytable import PrettyTable
 import matplotlib.pyplot as plt
 
 
@@ -134,18 +133,36 @@ class MyDataSet:
             return [self.df[get_col][x] for x in idx]
 
     def describe(self):
-        keys_float = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
-        t = PrettyTable(['', *keys_float])
-        t.add_row(['count', *[self.column_count(key) for key in keys_float]])
-        t.add_row(['mean', *[self.column_mean(key) for key in keys_float]])
-        t.add_row(['std', *[self.standard_deviation(key) for key in keys_float]])
-        t.add_row(['min', *[self.column_minimum(key) for key in keys_float]])
-        t.add_row(['25%', *[self.quartiles(key, 0.25) for key in keys_float]])
-        t.add_row(['50%', *[self.quartiles(key, 0.5) for key in keys_float]])
-        t.add_row(['75%', *[self.quartiles(key, 0.75) for key in keys_float]])
-        t.add_row(['max', *[self.column_maximum(key) for key in keys_float]])
+        keys_float = [key for key in self.df.keys() if
+                      all(isinstance(x, (float)) for x in self.df[key])]
+        print('\t', end='')
+        for feature in keys_float:
+            print((feature+'           ')[:14], end='\t')
+        print()
+        rows = ['Count', 'Mean', 'Std', 'Min', '25%', '50%', '75%', 'Max']
+        for row in rows:
+            print(row, end='\t')
+            for feature in keys_float:
+                self.describe_rows_val(row, feature)
+            print()
 
-        print(t)
+    def describe_rows_val(self, row, feature):
+        if row == 'Count':
+            print(format(self.column_count(feature), '.0f'), end='\t \t')
+        elif row == 'Mean':
+            print(format(self.column_mean(feature), '.2f'), end='\t \t')
+        elif row == 'Std':
+            print(format(self.standard_deviation(feature), '.2f'), end='\t \t')
+        elif row == 'Min':
+            print(format(self.column_minimum(feature), '.2f'), end='\t \t')
+        elif row == '25%':
+            print(format(self.quartiles(feature, 0.25), '.2f'), end='\t \t')
+        elif row == '50%':
+            print(format(self.quartiles(feature, 0.5), '.2f'), end='\t \t')
+        elif row == '75%':
+            print(format(self.quartiles(feature, 0.75), '.2f'), end='\t \t')
+        elif row == 'Max':
+            print(format(self.column_maximum(feature), '.2f'), end='\t \t')
 
     def column_count(self, feature):
         """
