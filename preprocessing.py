@@ -116,10 +116,6 @@ def to_matrix(full_dict, select=None):
     else:
         return np.array(full_dict[select].copy())
     
-def interaction(dataset, var1, var2):
-    #dataset is a dicitonary of lists
-    dataset[str(var1 + '*' + var2)] = [a*b for a,b in zip(dataset[var1],dataset[var2])]
-
 
 if __name__ == '__main__':
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
