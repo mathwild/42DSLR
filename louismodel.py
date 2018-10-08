@@ -48,25 +48,21 @@ class LogRegModel :
         m, p = X.shape
         intercept = np.ones(m)
         X = np.column_stack((intercept,X))
-        houses = set(model.coef.keys())
+        houses = set(self.coef.keys())
         pairwise_max = np.zeros(m)
         
         for house in houses: 
             #print(house)
-            coef = model.coef[house]
-            proba = np.exp(np.matmul(indiv,coef))/(1+(np.exp(np.matmul(indiv,coef))))
+            coef = self.coef[house]
+            proba = np.exp(np.matmul(X,coef))/(1+(np.exp(np.matmul(X,coef))))
             pairwise_max = np.maximum(pairwise_max, proba)
         #print(pairwise_max)
         labels = pairwise_max
         for house in houses: 
-            coef = model.coef[house]
-            boolean = pairwise_max == np.exp(np.matmul(indiv,coef))/(1+(np.exp(np.matmul(indiv,coef))))
+            coef = self.coef[house]
+            boolean = pairwise_max == np.exp(np.matmul(X,coef))/(1+(np.exp(np.matmul(X,coef))))
             labels = [labels[i] if labels[i] in houses else house if elements == True else labels[i] for i, elements in enumerate(boolean)]
         self.prediction = labels
-
-    def accuracy_score(self, Y_true):
-        #both Y_pred and and Y_true should be lists 
-        return len([i for i, j in zip(self.prediction, Y_true) if i == j])/len(Y_true)
     
 name_Y = 'Hogwarts House'
 
@@ -74,13 +70,16 @@ if __name__ == '__main__':
     
     ### TRAIN ###
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
-    # getting X
     DictX = dataset_train[['Best Hand','Arithmancy', 'Astronomy', 'Herbology', 'Defense Against the Dark Arts', 'Divination', 'Muggle Studies',
                            'Ancient Runes', 'History of Magic', 'Transfiguration', 'Potions', 'Care of Magical Creatures', 'Charms', 'Flying']]
     DictX_encod = full_one_hot_encoder(DictX)
     X = to_matrix(DictX_encod)
-    # getting Y
     Y = dataset_train[name_Y]
+    ###
+    
+    ### FIT ### 
+    model = LogRegModel()
+    model.fit(Y, X_train = X)
     ###
     
     ### TEST ### 
@@ -92,22 +91,14 @@ if __name__ == '__main__':
     DictX_encod_test = full_one_hot_encoder(DictX_test)
     #X_test = to_matrix(DictX_encod_test)
     X_test = X.copy()
-    # adding intercept
-    m, p = X_test.shape
-    intercept = np.ones(m)
-    X_test = np.column_stack((intercept,X_test))
     
     #getting Y
     #Y_test = dataset_test[name_Y]
     Y_test = dataset_train[name_Y]
+    ### 
     
-    ### FIT ### 
-    model = LogRegModel()
-    model.fit(Y, X_train = X)
-    ###
     indiv = X_test[:]
     model.predict(indiv)
     
-    #print(model.prediction)
-    print(model.accuracy_score(Y_test[name_Y]))
+    print(model.prediction)
     
