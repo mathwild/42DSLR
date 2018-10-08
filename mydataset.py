@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+    File name: mydataset.py
+    Description: Class for storing a DataSet.
+    Author: Mathilde DUVERGER
+    Date created: 2018/10/03
+    Python Version: 3.6
+"""
+
 import numpy as np
 from prettytable import PrettyTable
 import matplotlib.pyplot as plt
@@ -5,9 +16,15 @@ import matplotlib.pyplot as plt
 
 class MyDataSet:
 
+    """
+    Summary
+    -------
+    Stores a DataSet.
+    """
+
     def __init__(self):
         pass
-    
+
     def __getitem__(self, key_tup):
         if type(key_tup) == tuple:
             row = key_tup[0]
@@ -15,38 +32,67 @@ class MyDataSet:
             return self.df[col][row]
         else:
             if type(key_tup) == list:
-                return {key:self.df[key] for key in key_tup}
+                return {key: self.df[key] for key in key_tup}
             else:
-                return {key_tup:self.df[key_tup]}
-    
+                return {key_tup: self.df[key_tup]}
+
     def read_csv(self, path):
+        """
+        Summary
+        -------
+        Read a DataSet from a CSV file.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        path: 'str'
+            Path to the CSV file.
+
+        Returns
+        --------
+        self: Instance of MyDataSet class.
+        """
+
         with open(path, 'r') as file:
             line_count = 0
             for line in file:
                 if line_count == 0:
                     colNames = line.strip().split(',')
                     dataframe = dict.fromkeys(colNames, )
-                    line_count += 1 
+                    line_count += 1
                 elif line_count == 1:
                     words = line.strip().split(',')
                     words = [MyDataSet.words_convert(x) for x in words]
-                    index = words[0]
                     for i in range(len(words)):
                         dataframe[colNames[i]] = [words[i]]
                     line_count += 1
                 else:
                     words = line.strip().split(',')
                     words = [MyDataSet.words_convert(x) for x in words]
-                    index = words[0]
                     for i in range(len(words)):
                         dataframe[colNames[i]] += [words[i]]
                     line_count += 1
         self.df = dataframe
         return self
-    
+
     @staticmethod
     def words_convert(item):
-        if item == '' :
+        """
+        Summary
+        -------
+        Convert str to its appropriate type.
+
+        Parameters
+        ----------
+        item: 'str'
+            String to be converted.
+
+        Returns
+        --------
+        item: 'int' or 'float' or 'str'
+            Input item converted into its appropriate type
+        """
+        if item == '':
             return np.nan
         else:
             try:
@@ -56,17 +102,40 @@ class MyDataSet:
                     return float(item)
                 except ValueError:
                     return item
-    
-    def get_cond(self, cond_col, cond_val, get_col, dropna = True):
+
+    def get_cond(self, cond_col, cond_val, get_col, dropna=True):
+        """
+        Summary
+        -------
+        Function to access values in MyDataSet instance given a condition.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        cond_col: 'str'
+            Column name to condition on.
+        cond_val: 'str' or 'int' or 'float'
+            Value of cond_col to condition on (equality).
+        get_col: 'str'
+            Column name to get.
+        dropna: 'bool', default True
+            Remove nan values from output if True.
+
+        Returns
+        --------
+        'list'
+        List of values from get_col conditioned on cond_col values.
+        """
         idx = [i for i, x in enumerate(self.df[cond_col]) if x == cond_val]
-        if dropna == True:
-            return [self.df[get_col][x] for x in idx if str(self.df[get_col][x]) != 'nan']
+        if dropna is True:
+            return [self.df[get_col][x] for x in idx if
+                    str(self.df[get_col][x]) != 'nan']
         else:
             return [self.df[get_col][x] for x in idx]
-    
+
     def describe(self):
         keys_float = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
-        t = PrettyTable(['',*keys_float])
+        t = PrettyTable(['', *keys_float])
         t.add_row(['count', *[self.column_count(key) for key in keys_float]])
         t.add_row(['mean', *[self.column_mean(key) for key in keys_float]])
         t.add_row(['std', *[self.standard_deviation(key) for key in keys_float]])
@@ -79,6 +148,22 @@ class MyDataSet:
         print(t)
 
     def column_count(self, feature):
+        """
+        Summary
+        -------
+        Count non nan values for given feature in the DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        feature: 'str'
+            Column name.
+
+        Returns
+        --------
+        'int'
+        Count.
+        """
         column = self.df[feature]
         count = 0
         for value in column:
@@ -89,6 +174,22 @@ class MyDataSet:
         return count
 
     def column_mean(self, feature):
+        """
+        Summary
+        -------
+        Mean of given feature in the DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        feature: 'str'
+            Column name.
+
+        Returns
+        --------
+        'int'
+        Count.
+        """
         column = self.df[feature]
         count = 0
         total = 0
@@ -148,73 +249,73 @@ class MyDataSet:
         func_list = [x for x in func_list if str(x) != 'nan']
         func_list.sort()
         quart_idx = quart*len(func_list)
-        if quart_idx.is_integer() :
+        if quart_idx.is_integer():
             result = (func_list[int(quart_idx)] + func_list[int(quart_idx)-1])/2
             return result
         else:
             result = func_list[int(quart_idx)]
             return result
-    
+
     def plot_hist(self):
         class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
-        num_cols = int(len(class_list)/2) + 1 
-        fig, axes = plt.subplots(2, num_cols, sharey=True, figsize=(15,6))
+        num_cols = int(len(class_list)/2) + 1
+        fig, axes = plt.subplots(2, num_cols, sharey=True, figsize=(15, 6))
         i, j = [0, 0]
-        for class_name in class_list :
+        for class_name in class_list:
             for house in set(self.df['Hogwarts House']):
-                axes[i,j].hist(self.get_cond('Hogwarts House', house, class_name), alpha=0.7)
-                axes[i,j].set_title(class_name, fontsize = 12)
-            if j < num_cols - 1 :
+                axes[i, j].hist(self.get_cond('Hogwarts House', house, class_name), alpha=0.7)
+                axes[i, j].set_title(class_name, fontsize=12)
+            if j < num_cols - 1:
                 j += 1
-            else :
+            else:
                 i += 1
                 j = 0
 
         plt.show()
-    
+
     def plot_scatter(self):
         class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = len(class_list)
-        fig, axes = plt.subplots(num_cols, num_cols, figsize=(30,30))
+        fig, axes = plt.subplots(num_cols, num_cols, figsize=(30, 30))
         i = 0
-        for class_name_1 in class_list :
+        for class_name_1 in class_list:
             j = 0
-            for class_name_2 in class_list :
-                if i == j :
-                    axes[i,j].text(x=0.1, y=1/2, s=class_name_1, fontsize=15)
-                else :
-                    axes[i,j].scatter(x=self.df[class_name_1], y=self.df[class_name_2])
-                axes[i,j].set_xticklabels([])
-                axes[i,j].set_yticklabels([])
+            for class_name_2 in class_list:
+                if i == j:
+                    axes[i, j].text(x=0.1, y=1/2, s=class_name_1, fontsize=15)
+                else:
+                    axes[i, j].scatter(x=self.df[class_name_1], y=self.df[class_name_2])
+                axes[i, j].set_xticklabels([])
+                axes[i, j].set_yticklabels([])
                 j += 1
             i += 1
         plt.show()
-    
+
     def plot_pair(self):
         class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = len(class_list)
-        fig, axes = plt.subplots(num_cols, num_cols, figsize=(60,60))
+        fig, axes = plt.subplots(num_cols, num_cols, figsize=(60, 60))
         i = 0
-        for class_name_1 in class_list :
+        for class_name_1 in class_list:
             j = 0
-            for class_name_2 in class_list :
+            for class_name_2 in class_list:
 
-                if j==0 :
-                    axes[i,j].set_ylabel(class_name_1, fontsize=30)
+                if j == 0:
+                    axes[i, j].set_ylabel(class_name_1, fontsize=30)
 
-                if i == j :
-                    for house in set(self.df['Hogwarts House']) :
-                        axes[i,j].hist(self.get_cond('Hogwarts House', house, class_name_1), alpha=0.7)
-                else :
-                    for house in set(self.df['Hogwarts House']) :
+                if i == j:
+                    for house in set(self.df['Hogwarts House']):
+                        axes[i, j].hist(self.get_cond('Hogwarts House', house, class_name_1), alpha=0.7)
+                else:
+                    for house in set(self.df['Hogwarts House']):
                             sc_x = self.get_cond('Hogwarts House', house, class_name_1, dropna=False)
                             sc_y = self.get_cond('Hogwarts House', house, class_name_2, dropna=False)
-                            axes[i,j].scatter(x=sc_x, y=sc_y)
-                axes[i,j].set_xticklabels([])
-                axes[i,j].set_yticklabels([])
+                            axes[i, j].scatter(x=sc_x, y=sc_y)
+                axes[i, j].set_xticklabels([])
+                axes[i, j].set_yticklabels([])
 
-                if i==num_cols-1 :
-                    axes[i,j].set_xlabel(class_name_2, fontsize=30)
+                if i == num_cols-1:
+                    axes[i, j].set_xlabel(class_name_2, fontsize=30)
 
                 j += 1
             i += 1

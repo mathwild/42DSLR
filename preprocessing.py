@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 from mydataset import MyDataSet
 import numpy as np
 
@@ -42,7 +45,3 @@ if __name__ == '__main__':
     DictY = dataset_train['Hogwarts House']
     DictY_dum = get_dummies(DictY, 'Hogwarts House')
     Y = to_matrix(DictY_dum, 'Ravenclaw')
-
-    Y_name = list(DictY.keys())[0]
-
-    print(set(DictY[Y_name]))
