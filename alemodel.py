@@ -26,7 +26,8 @@ class LogRegModel :
         for i in Categories: 
             # Y_train = get_Y(SubDict, i)
             Y_train = SubDict[i]
-            self.fit_binary(Y_train, X_train, i)
+            #print(type(Y_train))
+            self.fit_binary2(Y_train, X_train, i, 10000, 0.001)
     
     def fit_binary(self, Y_train, X_train, name):
         m, p = X_train.shape
@@ -38,33 +39,33 @@ class LogRegModel :
         self.coef[name] = res.x
         return res.x
 
+    '''
     @staticmethod
     def neg_loglikelihood(beta, Y, X):
         # sum without NAs
         return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
+    '''
     
-    @staticmethod
-    def sigmoid(x):
-        return 1/(1+np.exp(-x))
+    def loss(self, h, y):
+        return (-y * np.log(h) - (1 - y) * np.log(1 - h)).nanmean()
     
-    @staticmethod
-    def loss(h, y):
-        return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
-    
-    def fit_binary2(self, Y_full, X_train, name, iterations, lr):
+    def fit_binary2(self, Y_train, X_train, name, iterations, lr):
         m, p = X_train.shape
         intercept = np.ones(m)
         X_one = np.column_stack((intercept,X_train))
         n, d = X_one.shape
         w = np.zeros(d)
-        for i in iterations:
+        for i in range(iterations):
             z = np.dot(X_one, w)
-            h = sigmoid(z)
-            gradient = np.dot(X_one.T, (h - Y_full)) / Y_full.size
+            h = 1/(1+np.exp(-z))
+            gradient = np.dot(X_one.T, (h - Y_train)) / len(Y_train)
+            #gradient = (X_one * (h - Y_train)).nanmean()
             w = w - lr*gradient
             if i % 1000:
-                print('loss', loss(h, y))
-            
+                print('loss', name, self.loss(h, Y_train))
+        self.coef[name] = w
+        return  w
+    
     def predict(self, X):
         m, p = X.shape
         intercept = np.ones(m)
