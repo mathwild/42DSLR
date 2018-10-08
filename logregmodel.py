@@ -11,6 +11,7 @@
 
 import numpy as np
 from scipy import optimize
+from scipy import special as scisp
 from mydataset import MyDataSet
 from preprocessing import get_dummies, full_one_hot_encoder, to_matrix
 
@@ -96,8 +97,7 @@ class LogRegModel:
         Loss function.
         """
         # sum without NAs
-        return -np.nansum(Y*np.matmul(X, beta)
-                          - np.log(1+np.exp(np.matmul(X, beta))))
+        return -np.nansum(Y*np.matmul(X,beta) - scisp.log1p(1+scisp.expm1(np.matmul(X,beta))))
 
     def predict(self, X):
         """
@@ -160,11 +160,12 @@ if __name__ == '__main__':
     ###
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
     # getting X
-    DictX = dataset_train[['Best Hand', 'Arithmancy', 'Astronomy', 'Herbology',
-                           'Defense Against the Dark Arts', 'Divination',
+    DictX = dataset_train[['Best Hand', 'Astronomy', 'Herbology',
+                           'Defense Against the Dark Arts',
                            'Muggle Studies', 'Ancient Runes',
-                           'History of Magic', 'Transfiguration', 'Potions',
-                           'Care of Magical Creatures', 'Charms', 'Flying']]
+                           'History of Magic', 'Transfiguration', 
+                           'Charms', 'Flying']]
+
     DictX_encod = full_one_hot_encoder(DictX)
     X = to_matrix(DictX_encod)
     # getting Y
@@ -174,7 +175,7 @@ if __name__ == '__main__':
     model = LogRegModel()
     model.fit(Y, X_train=X)
 
-    Y_test = list(Y.values())
+    Y_test = list(Y.values())[0]
     preds = model.predict(X[:])
     print(preds[:10])
     print(model.accuracy_score(Y_test))
