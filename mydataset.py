@@ -187,8 +187,8 @@ class MyDataSet:
 
         Returns
         --------
-        'int'
-        Count.
+        'float'
+        Mean.
         """
         column = self.df[feature]
         count = 0
@@ -202,6 +202,22 @@ class MyDataSet:
         return total/count
 
     def standard_deviation(self, feature):
+        """
+        Summary
+        -------
+        Standard deviation of given feature in the DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        feature: 'str'
+            Column name.
+
+        Returns
+        --------
+        'float'
+        Standard deviation.
+        """
         column = self.df[feature]
         count = 0
         total = 0
@@ -224,6 +240,22 @@ class MyDataSet:
         return (variance/(count-1))**(1/2)
 
     def column_minimum(self, feature):
+        """
+        Summary
+        -------
+        Minimum of given feature in the DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        feature: 'str'
+            Column name.
+
+        Returns
+        --------
+        'int' or 'float'
+        Minimum.
+        """
         column = self.df[feature]
         mini = np.inf
         for value in column:
@@ -234,6 +266,22 @@ class MyDataSet:
         return mini
 
     def column_maximum(self, feature):
+        """
+        Summary
+        -------
+        Maximum of given feature in the DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        feature: 'str'
+            Column name.
+
+        Returns
+        --------
+        'int' or float'
+        Maximum.
+        """
         column = self.df[feature]
         maxi = - np.inf
         for value in column:
@@ -244,6 +292,24 @@ class MyDataSet:
         return maxi
 
     def quartiles(self, feature, quart):
+        """
+        Summary
+        -------
+        Quartiles of given feature in the DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        feature: 'str'
+            Column name.
+        quart: 'float'
+            Quartile to calculate (0.5 for median).
+
+        Returns
+        --------
+        'float'
+        Quartile.
+        """
         mylist = self.df[feature]
         func_list = mylist.copy()
         func_list = [x for x in func_list if str(x) != 'nan']
@@ -257,6 +323,15 @@ class MyDataSet:
             return result
 
     def plot_hist(self):
+        """
+        Summary
+        -------
+        Plot a histogram of all numeric columns in DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        """
         class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = int(len(class_list)/2) + 1
         fig, axes = plt.subplots(2, num_cols, sharey=True, figsize=(15, 6))
@@ -274,6 +349,15 @@ class MyDataSet:
         plt.show()
 
     def plot_scatter(self):
+        """
+        Summary
+        -------
+        Plot a scatter matrix for all numeric columns in DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        """
         class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = len(class_list)
         fig, axes = plt.subplots(num_cols, num_cols, figsize=(30, 30))
@@ -292,6 +376,15 @@ class MyDataSet:
         plt.show()
 
     def plot_pair(self):
+        """
+        Summary
+        -------
+        Plot a pair plot of all numeric columns in DataSet.
+
+        Parameters
+        ----------
+        self: MyDataSet instance
+        """
         class_list = [key for key in self.df.keys() if all(isinstance(x, (float)) for x in self.df[key])]
         num_cols = len(class_list)
         fig, axes = plt.subplots(num_cols, num_cols, figsize=(60, 60))
