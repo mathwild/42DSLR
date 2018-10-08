@@ -8,6 +8,7 @@ Created on Thu Oct  4 13:43:19 2018
 
 import numpy as np
 from scipy import optimize 
+from scipy import special as scisp
 
 from mydataset import MyDataSet
 from preprocessing import get_dummies, full_one_hot_encoder, to_matrix
@@ -41,7 +42,7 @@ class LogRegModel :
     @staticmethod
     def neg_loglikelihood(beta, Y, X):
         # sum without NAs
-        return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
+        return -np.nansum(Y*np.matmul(X,beta) - scisp.log1p(1+scisp.expm1(np.matmul(X,beta))))
     
             
     def predict(self, X):
