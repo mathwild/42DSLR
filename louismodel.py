@@ -43,6 +43,28 @@ class LogRegModel :
         # sum without NAs
         return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
     
+    @staticmethod
+    def sigmoid(x):
+        return 1/(1+np.exp(-x))
+    
+    @staticmethod
+    def loss(h, y):
+        return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
+    
+    def fit_binary2(self, Y_full, X_train, name, iterations, lr):
+        m, p = X_train.shape
+        intercept = np.ones(m)
+        X_one = np.column_stack((intercept,X_train))
+        n, d = X_one.shape
+        w = np.zeros(d)
+        for i in iterations:
+            z = np.dot(X_one, w)
+            h = sigmoid(z)
+            gradient = np.dot(X_one.T, (h - Y_full)) / Y_full.size
+            w = w - lr*gradient
+            if i % 1000:
+                print('loss', loss(h, y))
+            
     def predict(self, X):
         m, p = X.shape
         intercept = np.ones(m)
