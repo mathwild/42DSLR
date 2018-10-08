@@ -71,12 +71,15 @@ class LogRegModel :
 name_Y = 'Hogwarts House'
 
 if __name__ == '__main__':
-    
-    ### TRAIN ###
+
+    # TRAIN ###
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
     # getting X
-    DictX = dataset_train[['Best Hand','Arithmancy', 'Astronomy', 'Herbology', 'Defense Against the Dark Arts', 'Divination', 'Muggle Studies',
-                           'Ancient Runes', 'History of Magic', 'Transfiguration', 'Potions', 'Care of Magical Creatures', 'Charms', 'Flying']]
+    DictX = dataset_train[['Best Hand', 'Arithmancy', 'Astronomy', 'Herbology',
+                           'Defense Against the Dark Arts', 'Divination',
+                           'Muggle Studies', 'Ancient Runes',
+                           'History of Magic', 'Transfiguration', 'Potions',
+                           'Care of Magical Creatures', 'Charms', 'Flying']]
     DictX_encod = full_one_hot_encoder(DictX)
     X = to_matrix(DictX_encod)
     # getting Y
@@ -87,8 +90,11 @@ if __name__ == '__main__':
     dataset_test = MyDataSet().read_csv('resources/dataset_test.csv')
     
     # getting X
-    DictX_test = dataset_test[['Best Hand','Arithmancy', 'Astronomy', 'Herbology', 'Defense Against the Dark Arts', 'Divination', 'Muggle Studies',
-                           'Ancient Runes', 'History of Magic', 'Transfiguration', 'Potions', 'Care of Magical Creatures', 'Charms', 'Flying']]
+    DictX_test = dataset_test[['Best Hand', 'Arithmancy', 'Astronomy', 'Herbology',
+                               'Defense Against the Dark Arts', 'Divination',
+                               'Muggle Studies', 'Ancient Runes',
+                               'History of Magic', 'Transfiguration', 'Potions',
+                               'Care of Magical Creatures', 'Charms', 'Flying']]
     DictX_encod_test = full_one_hot_encoder(DictX_test)
     #X_test = to_matrix(DictX_encod_test)
     X_test = X.copy()
