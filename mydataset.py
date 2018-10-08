@@ -411,7 +411,7 @@ class MyDataSet:
             for class_name_2 in class_list:
 
                 if j == 0:
-                    axes[i, j].set_ylabel(class_name_1, fontsize=30)
+                    axes[i, j].set_ylabel(class_name_1)
 
                 if i == j:
                     for house in set(self.df['Hogwarts House']):
@@ -425,7 +425,7 @@ class MyDataSet:
                 axes[i, j].set_yticklabels([])
 
                 if i == num_cols-1:
-                    axes[i, j].set_xlabel(class_name_2, fontsize=30)
+                    axes[i, j].set_xlabel(class_name_2)
 
                 j += 1
             i += 1
