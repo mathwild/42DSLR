@@ -11,8 +11,7 @@ from scipy import optimize
 from scipy import special as scisp
 
 from mydataset import MyDataSet
-from preprocessing import get_dummies, full_one_hot_encoder, to_matrix
-import time 
+from preprocessing import get_dummies, full_one_hot_encoder, to_matrix, interaction
 
 
 class LogRegModel : 
@@ -78,6 +77,13 @@ if __name__ == '__main__':
                            'Muggle Studies', 'Ancient Runes',
                            'History of Magic', 'Transfiguration', 'Potions',
                            'Care of Magical Creatures', 'Charms', 'Flying']]
+    
+    interaction(DictX, 'Herbology', 'Astronomy')
+    interaction(DictX, 'Herbology', 'Defense Against the Dark Arts')
+    interaction(DictX, 'Ancient Runes', 'Defense Against the Dark Arts')
+    interaction(DictX, 'Ancient Runes', 'Astronomy')
+    interaction(DictX, 'Ancient Runes', 'Herbology')
+    
     DictX_encod = full_one_hot_encoder(DictX)
     X = to_matrix(DictX_encod)
     Y = dataset_train[name_Y]
@@ -107,9 +113,7 @@ if __name__ == '__main__':
     ### 
     
     indiv = X_test[:]
-    start = time.time()
     model.predict(indiv)
-    print(time.time()-start)
     
     print(model.prediction[:10])
     
