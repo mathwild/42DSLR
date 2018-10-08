@@ -43,27 +43,6 @@ class LogRegModel :
         # sum without NAs
         return -np.nansum(Y*np.matmul(X,beta) - np.log(1+np.exp(np.matmul(X,beta))))
     
-    @staticmethod
-    def sigmoid(x):
-        return 1/(1+np.exp(-x))
-    
-    @staticmethod
-    def loss(h, y):
-        return (-y * np.log(h) - (1 - y) * np.log(1 - h)).mean()
-    
-    def fit_binary2(self, Y_full, X_train, name, iterations, lr):
-        m, p = X_train.shape
-        intercept = np.ones(m)
-        X_one = np.column_stack((intercept,X_train))
-        n, d = X_one.shape
-        w = np.zeros(d)
-        for i in iterations:
-            z = np.dot(X_one, w)
-            h = sigmoid(z)
-            gradient = np.dot(X_one.T, (h - Y_full)) / Y_full.size
-            w = w - lr*gradient
-            if i % 1000:
-                print('loss', loss(h, y))
             
     def predict(self, X):
         m, p = X.shape
@@ -96,7 +75,8 @@ if __name__ == '__main__':
     ### TRAIN ###
     dataset_train = MyDataSet().read_csv('resources/dataset_train.csv')
     # getting X
-    DictX = dataset_train[['Best Hand','Arithmancy', 'Astronomy']]
+    DictX = dataset_train[['Best Hand','Arithmancy', 'Astronomy', 'Herbology', 'Defense Against the Dark Arts', 'Divination', 'Muggle Studies',
+                           'Ancient Runes', 'History of Magic', 'Transfiguration', 'Potions', 'Care of Magical Creatures', 'Charms', 'Flying']]
     DictX_encod = full_one_hot_encoder(DictX)
     X = to_matrix(DictX_encod)
     # getting Y
@@ -105,16 +85,21 @@ if __name__ == '__main__':
     
     ### TEST ### 
     dataset_test = MyDataSet().read_csv('resources/dataset_test.csv')
+    
     # getting X
-    DictX_test = dataset_test[['Best Hand','Arithmancy', 'Astronomy']]
+    DictX_test = dataset_test[['Best Hand','Arithmancy', 'Astronomy', 'Herbology', 'Defense Against the Dark Arts', 'Divination', 'Muggle Studies',
+                           'Ancient Runes', 'History of Magic', 'Transfiguration', 'Potions', 'Care of Magical Creatures', 'Charms', 'Flying']]
     DictX_encod_test = full_one_hot_encoder(DictX_test)
-    X_test = to_matrix(DictX_encod_test)
+    #X_test = to_matrix(DictX_encod_test)
+    X_test = X.copy()
     # adding intercept
     m, p = X_test.shape
     intercept = np.ones(m)
     X_test = np.column_stack((intercept,X_test))
+    
     #getting Y
-    Y_test = dataset_test[name_Y]
+    #Y_test = dataset_test[name_Y]
+    Y_test = dataset_train[name_Y]
     
     ### FIT ### 
     model = LogRegModel()
