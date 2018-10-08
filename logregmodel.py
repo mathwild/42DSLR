@@ -41,8 +41,8 @@ class LogRegModel:
         self.coef = dict()
         Y_name = str(list(Y_full.keys())[0])
         SubDict = get_dummies(Y_full, Y_name)
-        Categories = set(Y_full[Y_name])
-        for cat in Categories:
+        categories = list(set(Y_full[Y_name]))
+        for cat in categories:
             Y_train = SubDict[cat]
             self.fit_binary(Y_train, X_train, cat)
 
@@ -119,23 +119,19 @@ class LogRegModel:
         m, p = X.shape
         intercept = np.ones(m)
         X = np.column_stack((intercept, X))
-        houses = set(self.coef.keys())
-        pairwise_max = np.zeros(m)
+        categories = list(set(self.coef.keys()))
+        num_cat = len(categories)
+        pred_probas = np.zeros((num_cat, m))
 
-        for house in houses:
-            coef = self.coef[house]
+        for i in range(num_cat):
+            cat = categories[i]
+            coef = self.coef[cat]
             proba = np.exp(np.matmul(X, coef))/(1+(np.exp(np.matmul(X, coef))))
-            pairwise_max = np.maximum(pairwise_max, proba)
-        labels = pairwise_max
+            pred_probas[i] = proba
 
-        for house in houses:
-            coef = self.coef[house]
-            boolean = pairwise_max == (np.exp(np.matmul(X, coef)) /
-                                       (1+(np.exp(np.matmul(X, coef)))))
-            labels = [labels[i] if labels[i] in houses else house
-                      if elements is True else labels[i]
-                      for i, elements in enumerate(boolean)]
-
+        pred_probas = np.transpose(pred_probas)
+        labels = np.argmax(pred_probas, axis=1)
+        labels = [categories[lab] for lab in labels]
         self.prediction = labels
         return labels
 
@@ -177,5 +173,8 @@ if __name__ == '__main__':
 
     model = LogRegModel()
     model.fit(Y, X_train=X)
-    preds = model.predict(X)
-    print(model.prediction)
+
+    Y_test = list(Y.values())
+    preds = model.predict(X[:])
+    print(preds[:10])
+    print(model.accuracy_score(Y_test))

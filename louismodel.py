@@ -11,6 +11,7 @@ from scipy import optimize
 
 from mydataset import MyDataSet
 from preprocessing import get_dummies, full_one_hot_encoder, to_matrix
+import time 
 
 
 class LogRegModel : 
@@ -105,7 +106,9 @@ if __name__ == '__main__':
     ### 
     
     indiv = X_test[:]
+    start = time.time()
     model.predict(indiv)
+    print(time.time()-start)
     
-    print(model.prediction)
+    print(model.prediction[:10])
     
